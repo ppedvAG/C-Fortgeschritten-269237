@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build SerializerDemo project",
+      "type": "shell",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "SerializerDemo/SerializerDemo.csproj"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

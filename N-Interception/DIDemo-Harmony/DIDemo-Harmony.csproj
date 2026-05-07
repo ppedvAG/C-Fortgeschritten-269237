@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      HarmonyLib patcht IL-Code zur Laufzeit via nativer Speichermanipulation.
+      Das funktioniert auf Windows und Unity/Mono, aber NICHT auf macOS mit .NET Core:
+      macOS verweigert mprotect() (Permission denied) – Sicherheitsmerkmal des Betriebssystems.
+
+      Castle.DynamicProxy erreicht dasselbe Ziel (Methoden abfangen ohne Änderung
+      der Originalklasse) via IL-Generierung – komplett plattformunabhängig.
+    -->
+    <PackageReference Include="Castle.Core" Version="5.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

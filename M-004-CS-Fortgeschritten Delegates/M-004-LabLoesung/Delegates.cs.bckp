@@ -1,0 +1,66 @@
+List<int> zahlen = [1, 2, 3, 4, 5];
+ForEach(zahlen, e => Console.WriteLine(e * 2));
+
+int ForEach<T>(IEnumerable<T> values, Action<T> action)
+{
+	if (values == null || action == null)
+		throw new ArgumentNullException();
+
+	foreach (T item in values) 
+		action?.Invoke(item);
+}
+
+
+void ForEachWithDelegate<T>(IEnumerable<T> values, ItemDelegate<T> action)
+{
+	if (values == null || action == null)
+		throw new ArgumentNullException();
+
+	foreach (T item in values)
+		action(item);
+}
+delegate void ItemDelegate<abc>(abc item);
+
+
+
+
+// IEnumerable<TReturn> ForEachReturn<T, TReturn>(IEnumerable<T> values, Func<T, TReturn> func)
+// {
+// 	if (values == null || func == null)
+// 		throw new ArgumentNullException();
+
+// 	List<TReturn> ret = [];
+// 	foreach (T item in values)
+// 	{
+// 		TReturn r = func(item);
+// 		ret.Add(r);
+// 	}
+// 	return ret;
+// }
+
+
+
+// var demo = new DelegateDemo();
+// demo.Run();
+
+// void PrintNumber(int value)
+// {
+// 	Console.WriteLine(value);
+// }
+
+
+// class DelegateDemo
+// {
+// 	private delegate void MessageDelegate(string message);
+
+// 	public void Run()
+// 	{
+// 		MessageDelegate handler = Print;
+// 		handler("Private delegate example");
+// 	}
+
+// 	private static void Print(string message)
+// 	{
+// 		Console.WriteLine(message);
+// 	}
+// }

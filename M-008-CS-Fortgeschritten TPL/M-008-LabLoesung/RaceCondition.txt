@@ -1,0 +1,68 @@
+Problem: Race Condition beim Einreihen in die Queue
+=====================================================
+
+Wenn zwei Scanner denselben Ordner überwachen, können beide gleichzeitig
+prüfen ob eine Datei schon in der Queue ist (Contains) – beide sehen "nein" –
+und reihen dieselbe Datei anschließend doppelt ein.
+
+Contains() und Enqueue() sind zwar einzeln thread-safe (ConcurrentQueue),
+aber die Kombination aus beiden ist es nicht – ein anderer Thread kann
+dazwischenfunken.
+
+Auslöser: Nutzer gibt zweimal denselben Pfad als Scanner-Pfad ein.
+
+Lösung 1: Duplikat-Check in CreateScanner()
+--------------------------------------------
+if (Scanners.Any(s => s.ScanPath == scannerEingabe))
+    LastOutput = "Dieser Pfad wird bereits gescannt";
+else
+    Scanners.Add(new Scanner(scannerEingabe));
+
+Lösung 2: lock beim Enqueue (falls Duplikat-Scanner trotzdem erlaubt sein sollen)
+----------------------------------------------------------------------------------
+private static readonly object _enqueueLock = new();
+
+lock (_enqueueLock)
+{
+    if (!Program.ProcessedImages.Contains(filePath) &&
+        !Program.ImagePathQueue.Contains(filePath))
+    {
+        Program.ImagePathQueue.Enqueue(filePath);
+    }
+}
+
+
+Problem: HashSet ist nicht thread-safe für ProcessedImages
+==========================================================
+
+Ein normales HashSet<T> darf nicht von mehreren Threads gleichzeitig
+beschrieben werden. Mögliche Folgen:
+
+1. Datenverlust: Zwei Threads schreiben gleichzeitig an dieselbe interne
+   Position → ein Eintrag wird überschrieben → Datei gilt als verarbeitet
+   obwohl sie nicht im HashSet steht → wird nochmal verarbeitet.
+
+2. Exception: Beim internen Resize (Array-Vergrößerung) und gleichzeitigem
+   Schreibzugriff → IndexOutOfRangeException oder NullReferenceException.
+
+3. Endlosschleife: Zirkuläre Referenzen beim Umkopieren der Einträge →
+   Thread hängt ewig.
+
+Lösung 1: lock
+--------------
+private static readonly object _lock = new();
+
+lock (_lock)
+{
+    ProcessedImages.Add(path);
+}
+
+Lösung 2: ConcurrentDictionary als thread-sicheres HashSet (empfohlen)
+-----------------------------------------------------------------------
+public static ConcurrentDictionary<string, byte> ProcessedImages = new();
+
+// Hinzufügen (atomar – prüft und fügt in einem Schritt ein):
+ProcessedImages.TryAdd(path, 0);
+
+// Prüfen:
+ProcessedImages.ContainsKey(path);

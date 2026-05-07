@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="EventUebung/EventUebung.csproj" />
+  <Project Path="PrimeComponent/PrimeComponent.csproj" />
+</Solution>
